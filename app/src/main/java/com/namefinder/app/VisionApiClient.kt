@@ -32,7 +32,7 @@ object VisionApiClient {
                     put("features", JSONArray().put(
                         JSONObject().apply {
                             put("type", "WEB_DETECTION")
-                            put("maxResults", 5)
+                            put("maxResults", 15)
                         }
                     ))
                 }
@@ -62,17 +62,42 @@ object VisionApiClient {
             if (responses.length() == 0) return null
             val webDetection = responses.getJSONObject(0).optJSONObject("webDetection") ?: return null
 
-            // أولوية: bestGuessLabels (أدق تخمين نصي لمحتوى الصورة)
+            // ١) أولوية: bestGuessLabels (أدق تخمين نصي لمحتوى الصورة - لكن غالبًا فاضي)
             val bestGuessLabels = webDetection.optJSONArray("bestGuessLabels")
             if (bestGuessLabels != null && bestGuessLabels.length() > 0) {
                 val label = bestGuessLabels.getJSONObject(0).optString("label")
                 if (label.isNotBlank()) return label
             }
 
-            // احتياطي: أول نتيجة من الصفحات المطابقة (عنوان الصفحة غالبًا فيه الاسم)
-            val pages = webDetection.optJSONArray("pagesWithMatchingImages")
-            if (pages != null && pages.length() > 0) {
-                val title = pages.getJSONObject(0).optString("pageTitle")
+            // ٢) webEntities: الكيانات المرتبطة بالصورة، مرتبة حسب درجة الثقة (score)
+            // هذا الحقل غالبًا أدق من bestGuessLabels لصور الشخصيات والرسوم
+            val entities = webDetection.optJSONArray("webEntities")
+            if (entities != null) {
+                var bestDesc: String? = null
+                var bestScore = -1.0
+                for (i in 0 until entities.length()) {
+                    val entity = entities.getJSONObject(i)
+                    val desc = entity.optString("description")
+                    val score = entity.optDouble("score", 0.0)
+                    if (desc.isNotBlank() && score > bestScore) {
+                        bestScore = score
+                        bestDesc = desc
+                    }
+                }
+                if (!bestDesc.isNullOrBlank()) return bestDesc
+            }
+
+            // ٣) احتياطي: أول نتيجة من الصفحات المطابقة تمامًا (عنوان الصفحة غالبًا فيه الاسم)
+            val fullMatches = webDetection.optJSONArray("pagesWithMatchingImages")
+            if (fullMatches != null && fullMatches.length() > 0) {
+                val title = fullMatches.getJSONObject(0).optString("pageTitle")
+                if (title.isNotBlank()) return title
+            }
+
+            // ٤) احتياطي أخير: أول عنوان من الصفحات المطابقة جزئيًا (partial matches)
+            val partialMatches = webDetection.optJSONArray("partialMatchingImages")
+            if (partialMatches != null && partialMatches.length() > 0) {
+                val title = partialMatches.getJSONObject(0).optString("pageTitle")
                 if (title.isNotBlank()) return title
             }
 
