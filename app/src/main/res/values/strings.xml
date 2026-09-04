@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">لقّط الاسم</string>
+    <string name="btn_grant_overlay">١. اسمح بالظهور فوق التطبيقات</string>
+    <string name="btn_start_service">٢. تشغيل الزر العائم</string>
+    <string name="btn_stop_service">إيقاف الزر العائم</string>
+    <string name="api_key_hint">ضع مفتاح Google Cloud Vision API هنا</string>
+    <string name="btn_save_key">حفظ المفتاح</string>
+    <string name="instructions">افتح المحادثة اللي فيها صورة الشخصية، وبعدين اضغط الزر العائم الدائري. بيطلع لك اسم الشخصية المقترح فوق الشاشة، اضغط عليه عشان تنسخه.</string>
+    <string name="analyzing">جاري التحليل...</string>
+    <string name="no_result">ما لقيت نتيجة واضحة</string>
+    <string name="copied">تم النسخ ✓</string>
+    <string name="error_no_key">لازم تحط مفتاح API أول من صفحة التطبيق</string>
+    <string name="notif_channel_name">خدمة الزر العائم</string>
+    <string name="notif_text">الزر العائم شغّال - اضغط عليه فوق أي صورة</string>
+</resources>
